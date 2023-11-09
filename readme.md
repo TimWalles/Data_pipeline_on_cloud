@@ -57,7 +57,7 @@ docker run -p 9000:8080 docker-image:test
 ```
 To test it then you run in a new terminal:
 ```bash
-curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
+curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"event":"weather"}'
 ```
 
 ### Docker compose
@@ -67,7 +67,7 @@ docker-compose up --build
 ```
 To test it then you run in a new terminal:
 ```bash
-curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{}'
+curl "http://localhost:9000/2015-03-31/functions/function/invocations" -d '{"event":"weather"}'
 ```
 After testing you can run the following command to remove the docker image again:
 ```bash
