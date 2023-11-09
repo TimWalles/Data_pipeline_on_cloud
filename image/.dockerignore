@@ -1,0 +1,7 @@
+.mypy_cache
+.vscode
+__pycache__
+.env
+.env-dev
+deploy-image-dist.sh
+deploy-image.sh

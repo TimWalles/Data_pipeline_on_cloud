@@ -1,0 +1,9 @@
+services:
+  app:
+    build: .
+    container_name: lambda_python
+    command: main.handler
+    ports:
+      - 9000:8080
+    env_file:
+      - .env
