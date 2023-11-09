@@ -44,26 +44,36 @@ def get_flight_info(airports_df: pd.DataFrame, api=AeroDataBox()) -> list[dict]:
 def handler(event, context):
     sql_con = MySQL()
 
-    # read cities_df from the sql server
-    cities_df = pd.read_sql_table('cities', con=sql_con.con())
+    if 'event' in event:
+        match event['event']:
+            case 'weather':
+                # read cities_df from the sql server
+                cities_df = pd.read_sql_table('cities', con=sql_con.con())
 
-    # read cities_df from the sql server
-    cities_df = cities_df.merge(pd.read_sql_table('cities_location', con=sql_con.con()), how='left')
+                # read cities_df from the sql server
+                cities_df = cities_df.merge(pd.read_sql_table('cities_location', con=sql_con.con()), how='left')
 
-    # update weather data on database:
-    weather_df = get_weather(cities_df)
-    if weather_df:
-        # truncate database
-        sql_con.truncate_df('weathers')
-        pd.DataFrame(weather_df).to_sql('weathers', if_exists='append', con=sql_con.con(), index=False)
+                # update weather data on database:
+                weather_df = get_weather(cities_df)
+                if weather_df:
+                    # truncate database
+                    sql_con.truncate_df('weathers')
+                    pd.DataFrame(weather_df).to_sql('weathers', if_exists='append', con=sql_con.con(), index=False)
+            case 'flights':
+                # read cities_df from the sql server
+                airports_df = pd.read_sql_table('airports', con=sql_con.con())
 
-    # read cities_df from the sql server
-    airports_df = pd.read_sql_table('airports', con=sql_con.con())
+                # update flights data on database:
+                flights_df = get_flight_info(airports_df)
+                if flights_df:
+                    sql_con.truncate_df('flights')
+                    pd.DataFrame(flights_df).to_sql('flights', if_exists='append', con=sql_con.con(), index=False)
+            case _:
+                logger.info({'statusCode': 404, 'body': 'event trigger not found'})
+                return {'statusCode': 404, 'body': 'event trigger not found'}
+    else:
+        logger.info({'statusCode': 404, 'body': 'event not found'})
+        return {'statusCode': 404, 'body': 'event not found'}
 
-    # update flights data on database:
-    flights_df = get_flight_info(airports_df)
-    if flights_df:
-        sql_con.truncate_df('flights')
-        pd.DataFrame(flights_df).to_sql('flights', if_exists='append', con=sql_con.con(), index=False)
     logger.info({'statusCode': 200, 'body': 'updated weather and flight data successfully'})
     return {'statusCode': 200, 'body': 'updated weather and flight data successfully'}
