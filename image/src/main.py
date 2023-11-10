@@ -59,6 +59,8 @@ def handler(event, context):
                     # truncate database
                     sql_con.truncate_df('weathers')
                     pd.DataFrame(weather_df).to_sql('weathers', if_exists='append', con=sql_con.con(), index=False)
+                    logger.info({'statusCode': 200, 'body': 'updated weather data successfully'})
+                    return {'statusCode': 200, 'body': 'updated weather data successfully'}
             case 'flights':
                 # read cities_df from the sql server
                 airports_df = pd.read_sql_table('airports', con=sql_con.con())
@@ -68,12 +70,11 @@ def handler(event, context):
                 if flights_df:
                     sql_con.truncate_df('flights')
                     pd.DataFrame(flights_df).to_sql('flights', if_exists='append', con=sql_con.con(), index=False)
+                    logger.info({'statusCode': 200, 'body': 'updated flight data successfully'})
+                    return {'statusCode': 200, 'body': 'updated flight data successfully'}
             case _:
                 logger.info({'statusCode': 404, 'body': 'event trigger not found'})
                 return {'statusCode': 404, 'body': 'event trigger not found'}
     else:
         logger.info({'statusCode': 404, 'body': 'event not found'})
         return {'statusCode': 404, 'body': 'event not found'}
-
-    logger.info({'statusCode': 200, 'body': 'updated weather and flight data successfully'})
-    return {'statusCode': 200, 'body': 'updated weather and flight data successfully'}
